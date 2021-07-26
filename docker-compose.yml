@@ -1,0 +1,77 @@
+version: "3.7"
+services:
+  app1:
+    image: nginx:latest
+    container_name: app1
+    ports:
+      - "8080:80"
+    volumes:
+      - "./app1/:/var/www/html/app1"
+      - "./app1/server/nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./app1/server/nginx/app.conf:/etc/nginx/conf.d/default.conf"
+    links:
+      - php_app1
+      - mysql
+
+  php_app1:
+    image: php:7-fpm
+    container_name: php_app1
+    privileged: true
+#    ports:
+#      - "9000:9000"
+    volumes:
+      - "./app1/:/var/www/html/app1"
+#    links:
+#      - mysql
+#    build: ./app1/server/php
+    networks:
+      - default
+      - dev_gateway
+#################################################################################
+  app2:
+    image: nginx:latest
+    container_name: app2
+    ports:
+      - "8181:80"
+    volumes:
+      - "./app2/:/var/www/html/app2"
+      - "./app2/server/nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./app2/server/nginx/app.conf:/etc/nginx/conf.d/default.conf"
+    links:
+      - php_app2
+      - mysql
+
+  php_app2:
+    image: php:7-fpm
+    container_name: php_app2
+    privileged: true
+#    ports:
+#      - "9000:9000"
+    volumes:
+      - "./app2/:/var/www/html/app2"
+    #    links:
+    #      - mysql
+    #    build: ./app2/server/php
+    networks:
+      - default
+      - dev_gateway
+#################################################################################
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql:/var/lib/mysql/
+    environment:
+      MYSQL_DATABASE: 'database'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: '12345678'
+      MYSQL_ROOT_PASSWORD: '12345'
+#################################################################################
+volumes:
+  mysql:
+
+networks:
+  dev_gateway:
+    external: true
